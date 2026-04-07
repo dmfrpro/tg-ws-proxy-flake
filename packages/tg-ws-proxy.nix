@@ -5,13 +5,13 @@ let
 in
 pyPkgs.buildPythonPackage rec {
   pname = "tg-ws-proxy";
-  version = "1.4.0";
+  version = "1.5.0";
 
   src = pkgs.fetchFromGitHub {
     owner = "Flowseal";
     repo = "tg-ws-proxy";
     rev = "v${version}";
-    hash = "sha256-c6Af+NzYuPhS4cewCnG5pz+93lLB6KzwEYEEikJ0vdA=";
+    hash = "sha256-7AjDG6PpHsDsENy/c/Xqzh9Yr7m7PyLwgtYNnZ0J6co=";
   };
 
   format = "pyproject";
@@ -40,7 +40,7 @@ pyPkgs.buildPythonPackage rec {
   doCheck = false;
 
   meta = {
-    description = "Local MTProto proxy for Telegram using WebSocket connections";
+    description = "Telegram Desktop WebSocket Bridge Proxy";
     homepage = "https://github.com/Flowseal/tg-ws-proxy";
     license = pkgs.lib.licenses.mit;
     platforms = pkgs.lib.platforms.linux;

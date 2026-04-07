@@ -85,6 +85,25 @@ in
       description = "Enable verbose (DEBUG) logging.";
     };
 
+    noCfProxy = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Disable attempt to proxy through Cloudflare.";
+    };
+
+    cfproxyDomain = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "Custom domain to use for Cloudflare proxying.";
+      example = "proxy.example.com";
+    };
+
+    cfproxyPriority = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Try proxying through Cloudflare before direct TCP connection.";
+    };
+
     extraArgs = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
@@ -133,6 +152,15 @@ in
             (toString cfg.logBackups)
           ]
           ++ lib.optionals cfg.verbose [ "--verbose" ]
+          ++ lib.optionals cfg.noCfProxy [ "--no-cfproxy" ]
+          ++ lib.optionals (cfg.cfproxyDomain != null) [
+            "--cfproxy-domain"
+            cfg.cfproxyDomain
+          ]
+          ++ [
+            "--cfproxy-priority"
+            (if cfg.cfproxyPriority then "true" else "false")
+          ]
           ++ cfg.extraArgs
         );
         Restart = "on-failure";
