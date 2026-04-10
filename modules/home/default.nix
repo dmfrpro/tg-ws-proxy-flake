@@ -167,6 +167,23 @@ in
         RestartSec = 5;
         StandardOutput = "journal";
         StandardError = "journal";
+
+        # Hardening
+        DevicePolicy = "closed";
+        KeyringMode = "private";
+        PrivateTmp = true;
+        PrivateMounts = true;
+        ProtectHome = true;
+        ProtectHostname = true;
+        ProtectKernelModules = true;
+        ProtectKernelTunables = true;
+        ProtectSystem = "strict";
+        ProtectProc = "invisible";
+        RemoveIPC = true;
+        RestrictNamespaces = true;
+        RestrictRealtime = true;
+        RestrictSUIDSGID = true;
+        SystemCallArchitectures = "native";
       };
       Install = {
         WantedBy = [ "default.target" ];
