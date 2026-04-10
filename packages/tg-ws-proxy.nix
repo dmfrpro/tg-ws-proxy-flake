@@ -5,13 +5,13 @@ let
 in
 pyPkgs.buildPythonPackage rec {
   pname = "tg-ws-proxy";
-  version = "1.5.0";
+  version = "1.6.0";
 
   src = pkgs.fetchFromGitHub {
     owner = "Flowseal";
     repo = "tg-ws-proxy";
     rev = "v${version}";
-    hash = "sha256-7AjDG6PpHsDsENy/c/Xqzh9Yr7m7PyLwgtYNnZ0J6co=";
+    hash = "sha256-HPwG/3GBfJ9KwoU/lfIXQUOeDC4blvSSmKJb/oPhdz8=";
   };
 
   format = "pyproject";
