@@ -63,7 +63,7 @@ in {
   homeConfigurations."user@host" = home-manager.lib.homeManagerConfiguration {
     inherit pkgs;
     modules = [
-      tg-ws-proxy.nixosModules.tg-ws-proxy
+      tg-ws-proxy.homeModules.tg-ws-proxy
     ];
   };
 };
