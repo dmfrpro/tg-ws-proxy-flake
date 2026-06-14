@@ -9,6 +9,17 @@ let
   pkg = pkgs.callPackage ../../packages/tg-ws-proxy.nix { };
 in
 {
+  imports = [
+    (lib.mkRemovedOptionModule [
+      "services"
+      "tg-ws-proxy"
+      "cfproxyPriority"
+    ] ''
+        services.tg-ws-proxy.cfproxyPriority got removed in version 1.7.0 and became a standard
+        For reference check https://github.com/Flowseal/tg-ws-proxy/releases/tag/v1.7.0
+      '')
+    ];
+
   options.services.tg-ws-proxy = {
     enable = lib.mkEnableOption "TG WS Proxy (MTProto proxy for Telegram)";
 
@@ -50,13 +61,13 @@ in
     };
 
     bufKb = lib.mkOption {
-      type = lib.types.int;
+      type = lib.types.numbers.nonnegative;
       default = 256;
       description = "Buffer size in KB.";
     };
 
     poolSize = lib.mkOption {
-      type = lib.types.int;
+      type = lib.types.numbers.nonnegative;
       default = 4;
       description = "Number of preallocated connections per DC.";
     };
@@ -68,13 +79,13 @@ in
     };
 
     logMaxMb = lib.mkOption {
-      type = lib.types.int;
+      type = lib.types.numbers.nonnegative;
       default = 5;
       description = "Maximum log file size in MB before rotation.";
     };
 
     logBackups = lib.mkOption {
-      type = lib.types.int;
+      type = lib.types.numbers.nonnegative;
       default = 0;
       description = "Number of log backups to keep after rotation.";
     };
@@ -92,16 +103,24 @@ in
     };
 
     cfproxyDomain = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
+      type = lib.types.nullOr (lib.types.listOf lib.types.str);
       default = null;
       description = "Custom domain to use for Cloudflare proxying.";
-      example = "proxy.example.com";
+      example = [ "proxy.example.com" ];
     };
 
-    cfproxyPriority = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Try proxying through Cloudflare before direct TCP connection.";
+    cfproxyWorkerDomain = lib.mkOption {
+      type = lib.types.nullOr (lib.types.listOf lib.types.str);
+      default = null;
+      description = "Custom cloudflare worker domain to use for Cloudflare proxying.";
+      example = [ "random-symbols-1234.username.workers.dev" ];
+    };
+
+    fakeTlsDomain = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "Enable Fake TLS (ee-secret) masking with the given SNI domain.";
+      example = "api.max.ru";
     };
 
     extraArgs = lib.mkOption {
@@ -117,6 +136,7 @@ in
         Description = "Local MTProto proxy for Telegram";
         After = [ "network.target" ];
       };
+
       Service = {
         Type = "simple";
         ExecStart = lib.concatStringsSep " " (
@@ -153,13 +173,21 @@ in
           ]
           ++ lib.optionals cfg.verbose [ "--verbose" ]
           ++ lib.optionals cfg.noCfProxy [ "--no-cfproxy" ]
-          ++ lib.optionals (cfg.cfproxyDomain != null) [
-            "--cfproxy-domain"
-            cfg.cfproxyDomain
-          ]
-          ++ [
-            "--cfproxy-priority"
-            (if cfg.cfproxyPriority then "true" else "false")
+          ++ lib.optionals (cfg.cfproxyDomain != null) (
+            (lib.concatMap (domain: [
+              "--cfproxy-domain"
+              domain
+            ]) cfg.cfproxyDomain)
+          )
+          ++ lib.optionals (cfg.cfproxyWorkerDomain != null) (
+            (lib.concatMap (domain: [
+              "--cfproxy-worker-domain"
+              domain
+            ]) cfg.cfproxyWorkerDomain)
+          )
+          ++ lib.optionals (cfg.fakeTlsDomain != null) [
+            "--fake-tls-domain"
+            cfg.fakeTlsDomain
           ]
           ++ cfg.extraArgs
         );

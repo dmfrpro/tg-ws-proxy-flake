@@ -1,17 +1,17 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 let
   pyPkgs = pkgs.python314.pkgs;
 in
-pyPkgs.buildPythonPackage rec {
+pyPkgs.buildPythonPackage (finalAttrs: {
   pname = "tg-ws-proxy";
-  version = "1.6.0";
+  version = "1.7.2";
 
   src = pkgs.fetchFromGitHub {
     owner = "Flowseal";
     repo = "tg-ws-proxy";
-    rev = "v${version}";
-    hash = "sha256-HPwG/3GBfJ9KwoU/lfIXQUOeDC4blvSSmKJb/oPhdz8=";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-WYOkwWRrEvP17Fgpu2tUt4vH0gLJKGYvOKSfW3dGV2Y=";
   };
 
   format = "pyproject";
@@ -34,7 +34,9 @@ pyPkgs.buildPythonPackage rec {
   postPatch = ''
     substituteInPlace pyproject.toml \
       --replace-fail 'pyperclip==1.9.0' 'pyperclip>=1.9.0' \
-      --replace-fail 'psutil==7.0.0;' 'psutil>=7.0.0;'
+      --replace-fail 'psutil==7.0.0;' 'psutil>=7.0.0;' \
+      --replace-fail 'cryptography==46.0.5' 'cryptography>=46.0.5' \
+      --replace-fail 'Pillow==12.1.1;' 'Pillow>=12.1.1;'
   '';
 
   doCheck = false;
@@ -42,7 +44,7 @@ pyPkgs.buildPythonPackage rec {
   meta = {
     description = "Telegram Desktop WebSocket Bridge Proxy";
     homepage = "https://github.com/Flowseal/tg-ws-proxy";
-    license = pkgs.lib.licenses.mit;
-    platforms = pkgs.lib.platforms.linux;
+    license = lib.licenses.mit;
+    platforms = lib.platforms.linux;
   };
-}
+})
