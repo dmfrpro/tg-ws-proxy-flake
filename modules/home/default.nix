@@ -10,15 +10,18 @@ let
 in
 {
   imports = [
-    (lib.mkRemovedOptionModule [
-      "services"
-      "tg-ws-proxy"
-      "cfproxyPriority"
-    ] ''
+    (lib.mkRemovedOptionModule
+      [
+        "services"
+        "tg-ws-proxy"
+        "cfproxyPriority"
+      ]
+      ''
         services.tg-ws-proxy.cfproxyPriority got removed in version 1.7.0 and became a standard
         For reference check https://github.com/Flowseal/tg-ws-proxy/releases/tag/v1.7.0
-      '')
-    ];
+      ''
+    )
+  ];
 
   options.services.tg-ws-proxy = {
     enable = lib.mkEnableOption "TG WS Proxy (MTProto proxy for Telegram)";
@@ -27,6 +30,12 @@ in
       type = lib.types.port;
       default = 1443;
       description = "Port the proxy listens on.";
+    };
+
+    openFirewall = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Open the configured TCP port in the firewall (NixOS only; has no effect in home-manager).";
     };
 
     host = lib.mkOption {
